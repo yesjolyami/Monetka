@@ -7,9 +7,16 @@ use App\Actions\Workspaces\SwitchWorkspace;
 use App\Http\Requests\Workspaces\StoreWorkspaceRequest;
 use App\Models\Workspace;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class WorkspaceController extends Controller
 {
+    public function create(): Response
+    {
+        return Inertia::render('workspaces/Create');
+    }
+
     public function store(StoreWorkspaceRequest $request, CreateWorkspace $createWorkspace): RedirectResponse
     {
         $data = $request->validated();

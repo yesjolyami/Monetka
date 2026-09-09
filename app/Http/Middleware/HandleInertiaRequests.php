@@ -41,6 +41,27 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'workspace' => function () use ($request) {
+                $user = $request->user();
+                if (! $user) {
+                    return null;
+                }
+
+                $workspace = $request->attributes->get('workspace') ?? $user->resolveCurrentWorkspace();
+                if (! $workspace) {
+                    return null;
+                }
+
+                return [
+                    'id' => $workspace->id,
+                    'name' => $workspace->name,
+                    'currency' => $workspace->currency,
+                    'role' => $workspace->roleFor($user),
+                ];
+            },
+            'workspaces' => fn () => $request->user()
+                ? $request->user()->workspaces()->orderBy('name')->get(['workspaces.id', 'name', 'currency'])
+                : [],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

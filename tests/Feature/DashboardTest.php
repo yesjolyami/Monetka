@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Workspaces\CreateWorkspace;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +20,7 @@ class DashboardTest extends TestCase
     public function test_authenticated_users_can_visit_the_dashboard()
     {
         $user = User::factory()->create();
+        (new CreateWorkspace)->execute($user, 'Семья', 'RUB');
         $this->actingAs($user);
 
         $response = $this->get(route('dashboard'));

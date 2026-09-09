@@ -16,11 +16,14 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Dashboard" />
+    <Head title="Обзор" />
 
     <div
         class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
     >
+        <p class="text-muted-foreground text-sm">
+            Бюджет создан. Дальше появятся счета и операции.
+        </p>
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
             <div
                 class="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border"
