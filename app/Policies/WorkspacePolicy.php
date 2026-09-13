@@ -28,6 +28,16 @@ class WorkspacePolicy
         return $workspace->roleFor($user) === WorkspaceRole::Owner;
     }
 
+    public function transferOwnership(User $user, Workspace $workspace): bool
+    {
+        return $workspace->roleFor($user) === WorkspaceRole::Owner;
+    }
+
+    public function removeMember(User $user, Workspace $workspace): bool
+    {
+        return $workspace->roleFor($user) === WorkspaceRole::Owner;
+    }
+
     public function replaceBackup(User $user, Workspace $workspace): bool
     {
         return $workspace->roleFor($user) === WorkspaceRole::Owner;

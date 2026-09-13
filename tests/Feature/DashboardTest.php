@@ -23,7 +23,8 @@ class DashboardTest extends TestCase
         (new CreateWorkspace)->execute($user, 'Семья', 'RUB');
         $this->actingAs($user);
 
-        $response = $this->get(route('dashboard'));
+        $this->withoutVite();
+        $response = $this->followingRedirects()->get(route('dashboard'));
         $response->assertOk();
     }
 }

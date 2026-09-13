@@ -1,3 +1,4 @@
+import { router, usePage } from '@inertiajs/vue3';
 import type { ComputedRef, Ref } from 'vue';
 import { computed, onMounted, ref } from 'vue';
 import type { Appearance, ResolvedAppearance } from '@/types';
@@ -75,7 +76,6 @@ export function initializeTheme(): void {
         return;
     }
 
-    // Initialize theme from saved preference or default to system...
     const savedAppearance = getStoredAppearance();
     updateTheme(savedAppearance || 'system');
 
@@ -86,13 +86,19 @@ export function initializeTheme(): void {
 const appearance = ref<Appearance>('system');
 
 export function useAppearance(): UseAppearanceReturn {
+    const page = usePage();
+
     onMounted(() => {
-        const savedAppearance = localStorage.getItem(
-            'appearance',
-        ) as Appearance | null;
+        const userTheme = page.props.auth.user?.theme;
+        const savedAppearance =
+            userTheme ??
+            (localStorage.getItem('appearance') as Appearance | null);
 
         if (savedAppearance) {
             appearance.value = savedAppearance;
+            localStorage.setItem('appearance', savedAppearance);
+            setCookie('appearance', savedAppearance);
+            updateTheme(savedAppearance);
         }
     });
 
@@ -114,6 +120,14 @@ export function useAppearance(): UseAppearanceReturn {
         setCookie('appearance', value);
 
         updateTheme(value);
+
+        if (page.props.auth.user) {
+            router.put(
+                '/settings/theme',
+                { theme: value },
+                { preserveState: true, preserveScroll: true },
+            );
+        }
     }
 
     return {

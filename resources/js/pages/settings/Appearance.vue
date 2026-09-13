@@ -8,7 +8,7 @@ defineOptions({
     layout: {
         breadcrumbs: [
             {
-                title: 'Appearance settings',
+                title: 'Оформление',
                 href: edit(),
             },
         ],
@@ -17,15 +17,15 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Appearance settings" />
+    <Head title="Оформление" />
 
-    <h1 class="sr-only">Appearance settings</h1>
+    <h1 class="sr-only">Оформление</h1>
 
     <div class="space-y-6">
         <Heading
             variant="small"
-            title="Appearance settings"
-            description="Update the appearance settings for your account"
+            title="Оформление"
+            description="Светлая, тёмная или системная тема"
         />
         <AppearanceTabs />
     </div>
