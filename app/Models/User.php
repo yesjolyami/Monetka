@@ -99,4 +99,9 @@ class User extends Authenticatable implements PasskeyUser
 
         return $workspaceId ? Workspace::query()->find($workspaceId) : null;
     }
+
+    public function belongsToWorkspace(Workspace $workspace): bool
+    {
+        return $this->memberships()->where('workspace_id', $workspace->id)->exists();
+    }
 }

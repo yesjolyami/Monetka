@@ -19,6 +19,17 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            workspace: {
+                id: number;
+                name: string;
+                currency: string;
+                role: string;
+            } | null;
+            workspaces: Array<{
+                id: number;
+                name: string;
+                currency: string;
+            }>;
             [key: string]: unknown;
         };
     }

@@ -50,10 +50,10 @@ const handleDelete = () => {
                     </span>
                 </div>
                 <p class="text-muted-foreground text-sm">
-                    Added {{ passkey.created_at_diff }}
+                    Добавлен {{ passkey.created_at_diff }}
                     <template v-if="passkey.last_used_at_diff">
                         <span class="text-muted-foreground/50 mx-1">/</span>
-                        Last used {{ passkey.last_used_at_diff }}
+                        последний раз {{ passkey.last_used_at_diff }}
                     </template>
                 </p>
             </div>
@@ -67,26 +67,25 @@ const handleDelete = () => {
                     class="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                     <Trash2 class="h-4 w-4" />
-                    <span class="sr-only">Remove</span>
+                    <span class="sr-only">Удалить</span>
                 </Button>
             </DialogTrigger>
 
             <DialogContent>
-                <DialogTitle>Remove passkey</DialogTitle>
+                <DialogTitle>Удалить ключ</DialogTitle>
                 <DialogDescription>
-                    Are you sure you want to remove the "{{ passkey.name }}"
-                    passkey? You will no longer be able to use it to sign in.
+                    Ключ «{{ passkey.name }}» больше не сможет открыть аккаунт.
                 </DialogDescription>
                 <DialogFooter class="gap-2">
                     <DialogClose as-child>
-                        <Button variant="secondary">Cancel</Button>
+                        <Button variant="secondary">Отмена</Button>
                     </DialogClose>
                     <Button
                         variant="destructive"
                         :disabled="isDeleting"
                         @click="handleDelete"
                     >
-                        {{ isDeleting ? 'Removing...' : 'Remove passkey' }}
+                        {{ isDeleting ? 'Удаляем…' : 'Удалить ключ' }}
                     </Button>
                 </DialogFooter>
             </DialogContent>

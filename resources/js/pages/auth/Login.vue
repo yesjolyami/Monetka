@@ -15,8 +15,8 @@ import PasskeyVerify from '@/components/PasskeyVerify.vue';
 
 defineOptions({
     layout: {
-        title: 'Log in to your account',
-        description: 'Enter your email and password below to log in',
+        title: 'Вход',
+        description: 'Введите email и пароль, чтобы войти',
     },
 });
 
@@ -27,7 +27,7 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head title="Вход" />
 
     <div
         v-if="status"
@@ -36,7 +36,11 @@ defineProps<{
         {{ status }}
     </div>
 
-    <PasskeyVerify />
+    <PasskeyVerify
+        label="Войти ключом"
+        loading-label="Вход..."
+        separator="Или паролем"
+    />
 
     <Form
         v-bind="store.form()"
@@ -46,7 +50,7 @@ defineProps<{
     >
         <div class="grid gap-6">
             <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+                <Label for="email">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -62,14 +66,14 @@ defineProps<{
 
             <div class="grid gap-2">
                 <div class="flex items-center justify-between">
-                    <Label for="password">Password</Label>
+                    <Label for="password">Пароль</Label>
                     <TextLink
                         v-if="canResetPassword"
                         :href="request()"
                         class="text-sm"
                         :tabindex="5"
                     >
-                        Forgot your password?
+                        Забыли пароль?
                     </TextLink>
                 </div>
                 <PasswordInput
@@ -78,7 +82,7 @@ defineProps<{
                     required
                     :tabindex="2"
                     autocomplete="current-password"
-                    placeholder="Password"
+                    placeholder="Пароль"
                 />
                 <InputError :message="errors.password" />
             </div>
@@ -86,7 +90,7 @@ defineProps<{
             <div class="flex items-center justify-between">
                 <Label for="remember" class="flex items-center space-x-3">
                     <Checkbox id="remember" name="remember" :tabindex="3" />
-                    <span>Remember me</span>
+                    <span>Запомнить меня</span>
                 </Label>
             </div>
 
@@ -98,13 +102,13 @@ defineProps<{
                 data-test="login-button"
             >
                 <Spinner v-if="processing" />
-                Log in
+                Вход
             </Button>
         </div>
 
         <div class="text-muted-foreground text-center text-sm">
-            Don't have an account?
-            <TextLink :href="register()" :tabindex="5">Sign up</TextLink>
+            Нет аккаунта?
+            <TextLink :href="register()" :tabindex="5">Регистрация</TextLink>
         </div>
     </Form>
 </template>

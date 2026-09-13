@@ -1,3 +1,12 @@
+@import '@fontsource/ibm-plex-sans/cyrillic-400.css';
+@import '@fontsource/ibm-plex-sans/cyrillic-500.css';
+@import '@fontsource/ibm-plex-sans/cyrillic-600.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-400.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-500.css';
+@import '@fontsource/ibm-plex-sans/latin-ext-600.css';
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
@@ -9,9 +18,11 @@
 
 @theme inline {
     --font-sans:
-        Instrument Sans, ui-sans-serif, system-ui, sans-serif,
+        'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
+    --font-display:
+        'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
@@ -44,6 +55,11 @@
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
+
+    --color-income: var(--income);
+    --color-expense: var(--expense);
+    --color-warning: var(--warning);
+    --color-brand: var(--brand);
 
     --color-chart-1: var(--chart-1);
     --color-chart-2: var(--chart-2);
@@ -79,87 +95,85 @@
     }
 }
 
-@layer utilities {
-    body,
-    html {
-        --font-sans:
-            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-            'Noto Color Emoji';
-    }
-}
-
 :root {
-    --background: hsl(0 0% 100%);
-    --foreground: hsl(0 0% 3.9%);
-    --card: hsl(0 0% 100%);
-    --card-foreground: hsl(0 0% 3.9%);
-    --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(0 0% 3.9%);
-    --primary: hsl(0 0% 9%);
-    --primary-foreground: hsl(0 0% 98%);
-    --secondary: hsl(0 0% 92.1%);
-    --secondary-foreground: hsl(0 0% 9%);
-    --muted: hsl(0 0% 96.1%);
-    --muted-foreground: hsl(0 0% 45.1%);
-    --accent: hsl(0 0% 96.1%);
-    --accent-foreground: hsl(0 0% 9%);
-    --destructive: hsl(0 84.2% 60.2%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 92.8%);
-    --input: hsl(0 0% 89.8%);
-    --ring: hsl(0 0% 3.9%);
-    --chart-1: hsl(12 76% 61%);
-    --chart-2: hsl(173 58% 39%);
-    --chart-3: hsl(197 37% 24%);
-    --chart-4: hsl(43 74% 66%);
-    --chart-5: hsl(27 87% 67%);
+    --background: #F9FAFC;
+    --foreground: #000814;
+    --card: #FFFFFF;
+    --card-foreground: #000814;
+    --popover: #FFFFFF;
+    --popover-foreground: #000814;
+    --primary: #1C6CFF;
+    --primary-foreground: #FFFFFF;
+    --secondary: #EEF1F6;
+    --secondary-foreground: #000814;
+    --muted: #EEF1F6;
+    --muted-foreground: #7F8BA4;
+    --accent: #EEF1F6;
+    --accent-foreground: #000814;
+    --destructive: #FF4433;
+    --destructive-foreground: #FFFFFF;
+    --border: #E6EAF2;
+    --input: #E6EAF2;
+    --ring: #1C6CFF;
+    --income: #00CC4B;
+    --expense: #FF4433;
+    --warning: #FECE4C;
+    --brand: #1C6CFF;
+    --chart-1: #1C6CFF;
+    --chart-2: #00CC4B;
+    --chart-3: #FECE4C;
+    --chart-4: #FF4433;
+    --chart-5: #7F8BA4;
     --radius: 0.5rem;
-    --sidebar-background: hsl(0 0% 98%);
-    --sidebar-foreground: hsl(240 5.3% 26.1%);
-    --sidebar-primary: hsl(0 0% 10%);
-    --sidebar-primary-foreground: hsl(0 0% 98%);
-    --sidebar-accent: hsl(0 0% 94%);
-    --sidebar-accent-foreground: hsl(0 0% 30%);
-    --sidebar-border: hsl(0 0% 91%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(0 0% 98%);
+    --sidebar-background: #F9FAFC;
+    --sidebar-foreground: #000814;
+    --sidebar-primary: #1C6CFF;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #EEF1F6;
+    --sidebar-accent-foreground: #000814;
+    --sidebar-border: #E6EAF2;
+    --sidebar-ring: #1C6CFF;
+    --sidebar: #F9FAFC;
 }
 
 .dark {
-    --background: hsl(0 0% 3.9%);
-    --foreground: hsl(0 0% 98%);
-    --card: hsl(0 0% 3.9%);
-    --card-foreground: hsl(0 0% 98%);
-    --popover: hsl(0 0% 3.9%);
-    --popover-foreground: hsl(0 0% 98%);
-    --primary: hsl(0 0% 98%);
-    --primary-foreground: hsl(0 0% 9%);
-    --secondary: hsl(0 0% 14.9%);
-    --secondary-foreground: hsl(0 0% 98%);
-    --muted: hsl(0 0% 16.08%);
-    --muted-foreground: hsl(0 0% 63.9%);
-    --accent: hsl(0 0% 14.9%);
-    --accent-foreground: hsl(0 0% 98%);
-    --destructive: hsl(0 84% 60%);
-    --destructive-foreground: hsl(0 0% 98%);
-    --border: hsl(0 0% 14.9%);
-    --input: hsl(0 0% 14.9%);
-    --ring: hsl(0 0% 83.1%);
-    --chart-1: hsl(220 70% 50%);
-    --chart-2: hsl(160 60% 45%);
-    --chart-3: hsl(30 80% 55%);
-    --chart-4: hsl(280 65% 60%);
-    --chart-5: hsl(340 75% 55%);
-    --sidebar-background: hsl(0 0% 7%);
-    --sidebar-foreground: hsl(0 0% 95.9%);
-    --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(0 0% 15.9%);
-    --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-    --sidebar-border: hsl(0 0% 15.9%);
-    --sidebar-ring: hsl(217.2 91.2% 59.8%);
-    --sidebar: hsl(240 5.9% 10%);
+    --background: #000814;
+    --foreground: rgba(255,255,255,0.9);
+    --card: #001533;
+    --card-foreground: rgba(255,255,255,0.9);
+    --popover: #001533;
+    --popover-foreground: rgba(255,255,255,0.9);
+    --primary: #1C6CFF;
+    --primary-foreground: #FFFFFF;
+    --secondary: #001533;
+    --secondary-foreground: rgba(255,255,255,0.9);
+    --muted: #001533;
+    --muted-foreground: #7F8BA4;
+    --accent: #001533;
+    --accent-foreground: rgba(255,255,255,0.9);
+    --destructive: #FF4433;
+    --destructive-foreground: #FFFFFF;
+    --border: rgba(255,255,255,0.08);
+    --input: rgba(255,255,255,0.08);
+    --ring: #1C6CFF;
+    --income: #00CC4B;
+    --expense: #FF4433;
+    --warning: #FECE4C;
+    --brand: #1C6CFF;
+    --chart-1: #1C6CFF;
+    --chart-2: #00CC4B;
+    --chart-3: #FECE4C;
+    --chart-4: #FF4433;
+    --chart-5: #7F8BA4;
+    --sidebar-background: #000814;
+    --sidebar-foreground: rgba(255,255,255,0.9);
+    --sidebar-primary: #1C6CFF;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #001533;
+    --sidebar-accent-foreground: rgba(255,255,255,0.9);
+    --sidebar-border: rgba(255,255,255,0.08);
+    --sidebar-ring: #1C6CFF;
+    --sidebar: #000814;
 }
 
 @layer base {
@@ -168,5 +182,10 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+
+    .font-display {
+        font-weight: 500;
+        letter-spacing: -0.02em;
     }
 }

@@ -19,6 +19,8 @@ it('uses the first workspace when current membership is gone', function () {
     $user->forceFill(['current_workspace_id' => $foreign->id])->save();
 
     $this->actingAs($user)
+        ->withoutVite()
+        ->followingRedirects()
         ->get(route('dashboard'))
         ->assertOk();
 
