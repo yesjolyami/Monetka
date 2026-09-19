@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'fns' => [
+        'base_url' => env('FNS_BASE_URL', 'https://irkkt-mobile.nalog.ru:8888'),
+        'client_secret' => env('FNS_CLIENT_SECRET', 'IyvrAbKt9h/8p6a7QPh8gpkXYQ4='),
+        'device_id' => env('FNS_DEVICE_ID', '7C82010F-16CC-446B-8F66-FC4080C66521'),
+    ],
+
 ];

@@ -9,6 +9,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\GoalController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\OverviewController;
+use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\RecurrenceController;
 use App\Http\Controllers\StatsController;
 use App\Http\Controllers\TransactionController;
@@ -77,6 +78,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('limits', [CategoryLimitController::class, 'store'])->name('limits.store');
         Route::patch('limits/{categoryLimit}', [CategoryLimitController::class, 'update'])->name('limits.update');
         Route::delete('limits/{categoryLimit}', [CategoryLimitController::class, 'destroy'])->name('limits.destroy');
+
+        Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
+        Route::post('receipts/connect', [ReceiptController::class, 'connect'])
+            ->middleware('throttle:5,1')
+            ->name('receipts.connect');
+        Route::get('receipts/status', [ReceiptController::class, 'status'])
+            ->middleware('throttle:30,1')
+            ->name('receipts.status');
+        Route::post('receipts', [ReceiptController::class, 'lookup'])->name('receipts.lookup');
+        Route::post('receipts/import', [ReceiptController::class, 'import'])->name('receipts.import');
+        Route::redirect('receipts/test', '/receipts');
 
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
         Route::post('transactions/income', [TransactionController::class, 'income'])->name('transactions.income');

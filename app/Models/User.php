@@ -30,11 +30,13 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $remember_token
  * @property int|null $current_workspace_id
  * @property string $theme
+ * @property string|null $fns_inn
+ * @property string|null $fns_password
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
 #[Fillable(['name', 'email', 'password', 'current_workspace_id', 'theme'])]
-#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+#[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'fns_password'])]
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -59,6 +61,7 @@ class User extends Authenticatable implements PasskeyUser
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'theme' => Appearance::class,
+            'fns_password' => 'encrypted',
         ];
     }
 
@@ -103,5 +106,10 @@ class User extends Authenticatable implements PasskeyUser
     public function belongsToWorkspace(Workspace $workspace): bool
     {
         return $this->memberships()->where('workspace_id', $workspace->id)->exists();
+    }
+
+    public function hasFnsCredentials(): bool
+    {
+        return filled($this->fns_inn) && filled($this->fns_password);
     }
 }
