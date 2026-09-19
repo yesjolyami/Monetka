@@ -2,6 +2,7 @@ import {
     ChartColumn,
     Gauge,
     LayoutGrid,
+    QrCode,
     Receipt,
     Scale,
     Settings,
@@ -40,6 +41,11 @@ export const mainNavItems: NavItem[] = [
         title: 'Лимиты',
         href: '/limits',
         icon: Gauge,
+    },
+    {
+        title: 'Чек ФНС',
+        href: '/receipts',
+        icon: QrCode,
     },
     {
         title: 'Статистика',
