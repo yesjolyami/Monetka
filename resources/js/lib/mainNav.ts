@@ -2,6 +2,7 @@ import {
     ChartColumn,
     Gauge,
     LayoutGrid,
+    MessageCircle,
     QrCode,
     Receipt,
     Scale,
@@ -46,6 +47,11 @@ export const mainNavItems: NavItem[] = [
         title: 'Чек ФНС',
         href: '/receipts',
         icon: QrCode,
+    },
+    {
+        title: 'Помощник',
+        href: '/assistant',
+        icon: MessageCircle,
     },
     {
         title: 'Статистика',

@@ -41,4 +41,10 @@ return [
         'device_id' => env('FNS_DEVICE_ID', '7C82010F-16CC-446B-8F66-FC4080C66521'),
     ],
 
+    'openrouter' => [
+        'key' => env('OPENROUTER_API_KEY'),
+        'model' => env('OPENROUTER_MODEL', 'qwen/qwen3.8-27b:free'),
+        'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
+    ],
+
 ];

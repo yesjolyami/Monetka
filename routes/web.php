@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CategoryLimitController;
@@ -78,6 +79,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('limits', [CategoryLimitController::class, 'store'])->name('limits.store');
         Route::patch('limits/{categoryLimit}', [CategoryLimitController::class, 'update'])->name('limits.update');
         Route::delete('limits/{categoryLimit}', [CategoryLimitController::class, 'destroy'])->name('limits.destroy');
+
+        Route::get('assistant', [AssistantController::class, 'index'])->name('assistant.index');
+        Route::post('assistant', [AssistantController::class, 'store'])
+            ->middleware('throttle:20,1')
+            ->name('assistant.store');
 
         Route::get('receipts', [ReceiptController::class, 'index'])->name('receipts.index');
         Route::post('receipts/connect', [ReceiptController::class, 'connect'])
