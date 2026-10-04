@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { dashboard, login, register } from '@/routes';
 </script>
 
@@ -10,7 +11,10 @@ import { dashboard, login, register } from '@/routes';
         class="bg-background text-foreground flex min-h-screen flex-col items-center px-6 py-8"
     >
         <header class="flex w-full max-w-5xl items-center justify-between">
-            <p class="font-display text-lg tracking-tight">Monetka</p>
+            <p class="font-display flex items-center gap-2 text-lg tracking-tight">
+                <AppLogoIcon class="text-primary size-7" />
+                Monetka
+            </p>
             <nav class="flex items-center gap-3 text-sm">
                 <Link
                     v-if="$page.props.auth.user"
@@ -70,7 +74,7 @@ import { dashboard, login, register } from '@/routes';
                         У меня уже есть аккаунт
                     </Link>
                 </template>
-            </div>
-        </main>
+                </div>
+            </main>
     </div>
 </template>
