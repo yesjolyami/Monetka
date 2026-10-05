@@ -43,7 +43,7 @@ final class AiSettings
     public function __construct(private readonly ?string $path = null) {}
 
     /**
-     * @return array{provider: string, api_key_configured: bool, api_key_hint: string|null, model: string, base_url: string}
+     * @return array{provider: string, api_key_configured: bool, api_key_hint: string|null, model: string, base_url: string, system_prompt: string, default_system_prompt: string}
      */
     public function current(): array
     {
@@ -55,11 +55,13 @@ final class AiSettings
             'api_key_hint' => $this->keyHint(is_string($key) ? $key : null),
             'model' => (string) config('services.ai.model', ''),
             'base_url' => (string) config('services.ai.base_url', ''),
+            'system_prompt' => AssistantPrompt::editableTemplate(),
+            'default_system_prompt' => AssistantPrompt::defaultTemplate(),
         ];
     }
 
     /**
-     * @param  array{provider: string, api_key?: string|null, clear_api_key?: bool, model: string, base_url: string}  $settings
+     * @param  array{provider: string, api_key?: string|null, clear_api_key?: bool, model: string, base_url: string, system_prompt: string}  $settings
      */
     public function update(array $settings): void
     {
@@ -67,6 +69,7 @@ final class AiSettings
             'AI_PROVIDER' => $settings['provider'],
             'AI_MODEL' => $settings['model'],
             'AI_BASE_URL' => rtrim($settings['base_url'], '/'),
+            'AI_SYSTEM_PROMPT' => $this->normalizeSystemPrompt($settings['system_prompt']),
         ];
 
         if (($settings['clear_api_key'] ?? false) === true) {
@@ -83,14 +86,7 @@ final class AiSettings
         }
 
         foreach ($values as $name => $value) {
-            $line = $name.'='.$this->quote($value);
-            $pattern = '/^(?:#\s*)?'.preg_quote($name, '/').'\s*=.*$/m';
-
-            if (preg_match($pattern, $contents) === 1) {
-                $contents = (string) preg_replace_callback($pattern, fn () => $line, $contents, 1);
-            } else {
-                $contents = rtrim($contents).PHP_EOL.$line.PHP_EOL;
-            }
+            $contents = $this->upsertEnvValue($contents, $name, $value);
         }
 
         $directory = dirname($path);
@@ -113,10 +109,34 @@ final class AiSettings
             'services.ai.provider' => $settings['provider'],
             'services.ai.model' => $settings['model'],
             'services.ai.base_url' => rtrim($settings['base_url'], '/'),
+            'services.ai.system_prompt' => $values['AI_SYSTEM_PROMPT'],
             ...array_key_exists('AI_API_KEY', $values) ? ['services.ai.key' => $values['AI_API_KEY']] : [],
         ]);
 
         Artisan::call('config:clear');
+    }
+
+    private function normalizeSystemPrompt(string $prompt): string
+    {
+        $prompt = str_replace(["\r\n", "\r"], "\n", $prompt);
+
+        if (trim($prompt) === trim(AssistantPrompt::defaultTemplate())) {
+            return '';
+        }
+
+        return $prompt;
+    }
+
+    private function upsertEnvValue(string $contents, string $name, string $value): string
+    {
+        $line = $name.'='.$this->quote($value);
+        $pattern = '/^'.preg_quote($name, '/').'\s*=(?:[^\r\n]*|"(?:[^"\\\\]|\\\\.)*")(?:\r?\n)?/m';
+
+        if (preg_match($pattern, $contents) === 1) {
+            return (string) preg_replace($pattern, $line.PHP_EOL, $contents, 1);
+        }
+
+        return rtrim($contents).PHP_EOL.$line.PHP_EOL;
     }
 
     private function quote(string $value): string

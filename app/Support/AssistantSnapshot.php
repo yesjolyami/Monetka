@@ -47,7 +47,7 @@ final class AssistantSnapshot
 
         return [
             'month' => $now->format('Y-m'),
-            'month_label' => $now->locale('ru')->translatedFormat('LLLL Y'),
+            'month_label' => mb_ucfirst($now->locale('ru')->isoFormat('MMMM YYYY')),
             'currency' => $workspace->currency,
             'workspace_name' => $workspace->name,
             'total_visible' => (int) $accounts->sum(fn (Account $account): int => AccountBalance::for($account)),

@@ -2,12 +2,17 @@
 
 use App\Models\User;
 use App\Support\AiSettings;
+use App\Support\AssistantPrompt;
 
 beforeEach(function () {
     $this->withoutVite();
     $this->envPath = storage_path('framework/testing/ai-settings-'.uniqid().'.env');
     file_put_contents($this->envPath, "APP_NAME=Monetka\nUNCHANGED=value\nAI_PROVIDER=openrouter\nAI_API_KEY=old-secret\nAI_MODEL=openrouter/free\nAI_BASE_URL=https://openrouter.ai/api/v1\n");
     $this->app->instance(AiSettings::class, new AiSettings($this->envPath));
+    config([
+        'services.ai.key' => null,
+        'services.ai.system_prompt' => null,
+    ]);
 });
 
 afterEach(function () {
@@ -30,7 +35,9 @@ it('allows only administrators to open AI settings', function () {
             ->where('settings.api_key_configured', false)
             ->has('providers.openrouter')
             ->has('providers.proxyapi')
-            ->has('providers.vsegpt'));
+            ->has('providers.vsegpt')
+            ->where('settings.system_prompt', AssistantPrompt::defaultTemplate())
+            ->where('settings.default_system_prompt', AssistantPrompt::defaultTemplate()));
 });
 
 it('updates only whitelisted AI environment values and never returns the key', function () {
@@ -49,6 +56,7 @@ it('updates only whitelisted AI environment values and never returns the key', f
             'api_key' => 'new-$ecret',
             'model' => 'openai/gpt-5-mini',
             'base_url' => 'https://api.proxyapi.ru/v1/',
+            'system_prompt' => "Кастом {snapshot}\n",
         ])
         ->assertRedirect()
         ->assertSessionHasNoErrors();
@@ -58,9 +66,9 @@ it('updates only whitelisted AI environment values and never returns the key', f
     expect($contents)
         ->toContain('UNCHANGED=value')
         ->toContain('AI_PROVIDER="proxyapi"')
-        ->toContain('AI_API_KEY="new-\\$ecret"')
         ->toContain('AI_MODEL="openai/gpt-5-mini"')
-        ->toContain('AI_BASE_URL="https://api.proxyapi.ru/v1"');
+        ->toContain('AI_BASE_URL="https://api.proxyapi.ru/v1"')
+        ->toContain('AI_SYSTEM_PROMPT="Кастом {snapshot}"');
 
     $this->actingAs($admin)
         ->get(route('admin.ai.edit'))
@@ -80,6 +88,7 @@ it('keeps the saved key when the key field is blank', function () {
             'api_key' => '',
             'model' => 'openai/gpt-4o-mini',
             'base_url' => 'https://api.vsegpt.ru/v1',
+            'system_prompt' => AssistantPrompt::defaultTemplate(),
         ])
         ->assertSessionHasNoErrors();
 

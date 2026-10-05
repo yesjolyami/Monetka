@@ -24,11 +24,12 @@ class UpdateAiSettingsRequest extends FormRequest
             'clear_api_key' => ['sometimes', 'boolean'],
             'model' => ['required', 'string', 'max:200', 'regex:/^[^\s]+$/'],
             'base_url' => ['required', 'url:http,https', 'max:500'],
+            'system_prompt' => ['required', 'string', 'max:20000'],
         ];
     }
 
     /**
-     * @return array{provider: string, api_key: string|null, clear_api_key: bool, model: string, base_url: string}
+     * @return array{provider: string, api_key: string|null, clear_api_key: bool, model: string, base_url: string, system_prompt: string}
      */
     public function settings(): array
     {
@@ -40,6 +41,7 @@ class UpdateAiSettingsRequest extends FormRequest
             'clear_api_key' => (bool) ($data['clear_api_key'] ?? false),
             'model' => (string) $data['model'],
             'base_url' => (string) $data['base_url'],
+            'system_prompt' => (string) $data['system_prompt'],
         ];
     }
 
@@ -54,6 +56,8 @@ class UpdateAiSettingsRequest extends FormRequest
             'model.regex' => 'ID модели не должен содержать пробелы.',
             'base_url.required' => 'Укажите адрес API.',
             'base_url.url' => 'Адрес API должен начинаться с http:// или https://.',
+            'system_prompt.required' => 'Укажите системный промпт.',
+            'system_prompt.max' => 'Промпт слишком длинный.',
         ];
     }
 }

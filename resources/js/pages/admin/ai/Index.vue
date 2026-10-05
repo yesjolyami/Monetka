@@ -36,6 +36,8 @@ type Settings = {
     api_key_hint: string | null;
     model: string;
     base_url: string;
+    system_prompt: string;
+    default_system_prompt: string;
 };
 
 const props = defineProps<{
@@ -60,7 +62,12 @@ const form = useForm({
     clear_api_key: false,
     model: props.settings.model,
     base_url: props.settings.base_url,
+    system_prompt: props.settings.system_prompt,
 });
+
+function resetSystemPrompt(): void {
+    form.system_prompt = props.settings.default_system_prompt;
+}
 
 const selectedProvider = computed(
     () => props.providers[form.provider] ?? props.providers.custom,
@@ -236,12 +243,47 @@ function submit(): void {
                         </div>
                     </div>
 
+                    <div class="grid gap-2">
+                        <div
+                            class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                            <Label for="system-prompt">Системный промпт</Label>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                @click="resetSystemPrompt"
+                            >
+                                Сбросить к умолчанию
+                            </Button>
+                        </div>
+                        <textarea
+                            id="system-prompt"
+                            v-model="form.system_prompt"
+                            name="system_prompt"
+                            rows="16"
+                            required
+                            class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[16rem] w-full rounded-md border px-3 py-2 font-mono text-xs leading-5 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                        <p class="text-muted-foreground text-xs leading-5">
+                            Вставьте
+                            <code class="text-foreground">{snapshot}</code> —
+                            туда подставится JSON бюджета перед каждым
+                            запросом. Если текст совпадает с умолчанием, в
+                            <code>.env</code> ключ не сохраняется. Поверх
+                            любого шаблона сервер всё равно добавляет короткий
+                            замок против кода и инъекций; явный оффтоп
+                            отсекается до вызова модели.
+                        </p>
+                        <InputError :message="form.errors.system_prompt" />
+                    </div>
+
                     <Alert>
                         <KeyRound aria-hidden="true" />
                         <AlertTitle>Только AI-переменные</AlertTitle>
                         <AlertDescription>
-                            Форма меняет только AI_PROVIDER, AI_API_KEY,
-                            AI_MODEL и AI_BASE_URL. Остальные строки
+                            Форма меняет AI_PROVIDER, AI_API_KEY, AI_MODEL,
+                            AI_BASE_URL и AI_SYSTEM_PROMPT. Остальные строки
                             <code>.env</code> остаются нетронутыми.
                         </AlertDescription>
                     </Alert>

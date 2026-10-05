@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
@@ -12,7 +13,12 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { mainNavItems } from '@/lib/mainNav';
+import { mainNavItemsForUser } from '@/lib/mainNav';
+
+const page = usePage();
+const navItems = computed(() =>
+    mainNavItemsForUser(Boolean(page.props.auth?.user?.is_admin)),
+);
 </script>
 
 <template>
@@ -30,7 +36,7 @@ import { mainNavItems } from '@/lib/mainNav';
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain :items="navItems" />
         </SidebarContent>
 
         <SidebarFooter>

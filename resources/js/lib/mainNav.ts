@@ -6,6 +6,7 @@ import {
     QrCode,
     Receipt,
     Scale,
+    ServerCog,
     Settings,
     Target,
     Wallet,
@@ -64,3 +65,22 @@ export const mainNavItems: NavItem[] = [
         icon: Settings,
     },
 ];
+
+export function mainNavItemsForUser(isAdmin: boolean): NavItem[] {
+    if (!isAdmin) {
+        return mainNavItems;
+    }
+
+    const items = [...mainNavItems];
+    const settingsIndex = items.findIndex(
+        (item) => item.href === '/workspaces/settings',
+    );
+
+    items.splice(settingsIndex + 1, 0, {
+        title: 'AI-админка',
+        href: '/admin/ai',
+        icon: ServerCog,
+    });
+
+    return items;
+}

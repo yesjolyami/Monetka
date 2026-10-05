@@ -4,6 +4,7 @@ namespace App\Actions\Assistant;
 
 use App\Models\Workspace;
 use App\Support\AssistantPrompt;
+use App\Support\AssistantReplyGuard;
 use App\Support\AssistantSnapshot;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
@@ -28,6 +29,10 @@ class AskAssistant
             ]);
         }
 
+        if (AssistantReplyGuard::shouldSkipModel($message)) {
+            return AssistantReplyGuard::refusal();
+        }
+
         $snapshot = AssistantSnapshot::for($workspace);
         $messages = [
             ['role' => 'system', 'content' => AssistantPrompt::system($snapshot)],
@@ -35,13 +40,19 @@ class AskAssistant
 
         foreach (array_slice($history, -10) as $turn) {
             $role = $turn['role'] === 'assistant' ? 'assistant' : 'user';
+            $content = $turn['content'];
+
+            if ($role === 'user') {
+                $content = AssistantPrompt::wrapUserMessage($content);
+            }
+
             $messages[] = [
                 'role' => $role,
-                'content' => $turn['content'],
+                'content' => $content,
             ];
         }
 
-        $messages[] = ['role' => 'user', 'content' => $message];
+        $messages[] = ['role' => 'user', 'content' => AssistantPrompt::wrapUserMessage($message)];
 
         $preferred = $settings['model'];
         [$response, $connectionError] = $this->complete($settings, $preferred, $messages);
@@ -213,6 +224,10 @@ class AskAssistant
             throw ValidationException::withMessages([
                 'message' => 'Модель ответила без текста.',
             ]);
+        }
+
+        if (AssistantReplyGuard::looksUnsafeOutbound($text) || AssistantReplyGuard::looksUnsafeOutbound($content)) {
+            return AssistantReplyGuard::refusal();
         }
 
         return [
