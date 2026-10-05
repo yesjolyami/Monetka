@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { LogOut, Settings } from '@lucide/vue';
+import { LogOut, Settings, SlidersHorizontal } from '@lucide/vue';
 import {
     DropdownMenuGroup,
     DropdownMenuItem,
@@ -35,6 +35,12 @@ defineProps<Props>();
             <Link class="block w-full cursor-pointer" :href="edit()" prefetch>
                 <Settings class="mr-2 h-4 w-4" />
                 Профиль
+            </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem v-if="user.is_admin" :as-child="true">
+            <Link class="block w-full cursor-pointer" href="/admin/ai">
+                <SlidersHorizontal class="mr-2 h-4 w-4" />
+                AI-провайдеры
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>

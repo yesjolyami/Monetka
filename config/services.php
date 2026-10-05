@@ -47,4 +47,11 @@ return [
         'base_url' => env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1'),
     ],
 
+    'ai' => [
+        'provider' => env('AI_PROVIDER', 'openrouter'),
+        'key' => env('AI_API_KEY', env('OPENROUTER_API_KEY')),
+        'model' => env('AI_MODEL', env('OPENROUTER_MODEL', 'qwen/qwen3.8-27b:free')),
+        'base_url' => env('AI_BASE_URL', env('OPENROUTER_BASE_URL', 'https://openrouter.ai/api/v1')),
+    ],
+
 ];

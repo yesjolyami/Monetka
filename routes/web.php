@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\AiSettingsController;
 use App\Http\Controllers\AssistantController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\CategoryController;
@@ -112,3 +113,8 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('ai', [AiSettingsController::class, 'edit'])->name('ai.edit');
+    Route::put('ai', [AiSettingsController::class, 'update'])->name('ai.update');
+});

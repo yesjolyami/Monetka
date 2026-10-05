@@ -19,11 +19,12 @@ class AssistantController extends Controller
         $workspace = $this->currentWorkspace($request);
         Gate::authorize('view', $workspace);
 
-        $key = config('services.openrouter.key');
+        $key = config('services.ai.key') ?: config('services.openrouter.key');
 
         return Inertia::render('assistant/Index', [
             'snapshot' => AssistantSnapshot::for($workspace),
-            'model' => config('services.openrouter.model'),
+            'model' => config('services.ai.model') ?: config('services.openrouter.model'),
+            'provider' => config('services.ai.provider', 'openrouter'),
             'configured' => is_string($key) && $key !== '',
         ]);
     }

@@ -19,11 +19,12 @@ class AskAssistant
      */
     public function execute(Workspace $workspace, string $message, array $history = []): array
     {
-        $key = config('services.openrouter.key');
+        $settings = $this->settings();
+        $key = $settings['key'];
 
-        if (! is_string($key) || $key === '') {
+        if ($key === '') {
             throw ValidationException::withMessages([
-                'message' => 'Нет ключа OpenRouter. Журнал и чек работают, чат недоступен.',
+                'message' => 'Нет API-ключа AI-провайдера. Журнал и чек работают, чат недоступен.',
             ]);
         }
 
@@ -42,17 +43,17 @@ class AskAssistant
 
         $messages[] = ['role' => 'user', 'content' => $message];
 
-        $preferred = (string) config('services.openrouter.model');
-        [$response, $connectionError] = $this->complete($key, $preferred, $messages);
+        $preferred = $settings['model'];
+        [$response, $connectionError] = $this->complete($settings, $preferred, $messages);
 
-        if ($response !== null && ! $response->successful() && in_array($response->status(), [404, 429], true) && $preferred !== 'openrouter/free') {
+        if ($settings['provider'] === 'openrouter' && $response !== null && ! $response->successful() && in_array($response->status(), [404, 429], true) && $preferred !== 'openrouter/free') {
             Log::warning('OpenRouter primary model failed, falling back', [
                 'model' => $preferred,
                 'status' => $response->status(),
                 'error' => $response->json('error.message'),
             ]);
 
-            [$fallback] = $this->complete($key, 'openrouter/free', $messages);
+            [$fallback] = $this->complete($settings, 'openrouter/free', $messages);
 
             if ($fallback !== null && $fallback->successful()) {
                 $response = $fallback;
@@ -61,18 +62,19 @@ class AskAssistant
 
         if ($response === null) {
             throw ValidationException::withMessages([
-                'message' => $this->connectionMessage($connectionError),
+                'message' => $this->connectionMessage($connectionError, $settings['provider']),
             ]);
         }
 
         if (! $response->successful()) {
-            Log::warning('OpenRouter request failed', [
+            Log::warning('AI provider request failed', [
+                'provider' => $settings['provider'],
                 'status' => $response->status(),
                 'error' => $response->json('error.message') ?? $response->body(),
             ]);
 
             throw ValidationException::withMessages([
-                'message' => $this->userMessage($response),
+                'message' => $this->userMessage($response, $settings['provider']),
             ]);
         }
 
@@ -88,33 +90,42 @@ class AskAssistant
     }
 
     /**
+     * @param  array{provider: string, key: string, model: string, base_url: string}  $settings
      * @param  list<array{role: string, content: string}>  $messages
      * @return array{0: Response|null, 1: string|null}
      */
-    private function complete(string $key, string $model, array $messages): array
+    private function complete(array $settings, string $model, array $messages): array
     {
         try {
-            $response = Http::baseUrl((string) config('services.openrouter.base_url'))
-                ->withToken($key)
+            $request = Http::baseUrl($settings['base_url'])
+                ->withToken($settings['key'])
                 ->acceptJson()
                 ->connectTimeout(10)
-                ->timeout(45)
-                ->withHeaders([
+                ->timeout(45);
+
+            if ($settings['provider'] === 'openrouter') {
+                $request = $request->withHeaders([
                     'HTTP-Referer' => (string) config('app.url'),
-                    'X-Title' => 'Monetka',
-                ])
-                ->post('/chat/completions', [
-                    'model' => $model,
-                    'messages' => $messages,
-                    'temperature' => 0.2,
-                    'provider' => [
-                        'allow_fallbacks' => true,
-                    ],
+                    'X-OpenRouter-Title' => 'Monetka',
                 ]);
+            }
+
+            $payload = [
+                'model' => $model,
+                'messages' => $messages,
+                'temperature' => 0.2,
+            ];
+
+            if ($settings['provider'] === 'openrouter') {
+                $payload['provider'] = ['allow_fallbacks' => true];
+            }
+
+            $response = $request->post('/chat/completions', $payload);
 
             return [$response, null];
         } catch (ConnectionException $exception) {
-            Log::warning('OpenRouter connection failed', [
+            Log::warning('AI provider connection failed', [
+                'provider' => $settings['provider'],
                 'model' => $model,
                 'error' => $exception->getMessage(),
             ]);
@@ -123,23 +134,70 @@ class AskAssistant
         }
     }
 
-    private function connectionMessage(?string $error): string
+    private function connectionMessage(?string $error, string $provider): string
     {
         $timeout = is_string($error) && (str_contains($error, 'timed out') || str_contains($error, 'cURL error 28'));
 
+        if ($provider === 'openrouter') {
+            return $timeout
+                ? 'OpenRouter не успел ответить. Бесплатная очередь зависла — подождите минуту и спросите снова.'
+                : 'Нет связи с OpenRouter. Проверьте интернет и попробуйте ещё раз.';
+        }
+
         return $timeout
-            ? 'OpenRouter не успел ответить. Бесплатная очередь зависла — подождите минуту и спросите снова.'
-            : 'Нет связи с OpenRouter. Проверьте интернет и попробуйте ещё раз.';
+            ? 'AI-провайдер не успел ответить. Подождите минуту и спросите снова.'
+            : 'Нет связи с AI-провайдером. Проверьте адрес API и попробуйте ещё раз.';
     }
 
-    private function userMessage(Response $response): string
+    private function userMessage(Response $response, string $provider): string
     {
+        $name = match ($provider) {
+            'openrouter' => 'OpenRouter',
+            'proxyapi' => 'ProxyAPI',
+            'vsegpt' => 'VseGPT',
+            default => 'AI-провайдер',
+        };
+
+        if ($provider === 'openrouter') {
+            return match ($response->status()) {
+                401, 403 => 'Ключ OpenRouter не принят. Проверьте его в AI-настройках.',
+                404 => 'Эта модель сейчас недоступна. Выберите другую в AI-настройках.',
+                429 => 'Бесплатная очередь OpenRouter перегружена. Подождите минуту и спросите снова.',
+                default => 'Модель не ответила. Попробуйте ещё раз через минуту.',
+            };
+        }
+
         return match ($response->status()) {
-            401, 403 => 'Ключ OpenRouter не принят. Проверьте OPENROUTER_API_KEY.',
-            404 => 'Этой модели сейчас нет в бесплатной очереди. Поставьте в .env OPENROUTER_MODEL=openrouter/free',
-            429 => 'Бесплатная очередь OpenRouter перегружена. Подождите минуту и спросите снова.',
+            401, 403 => "Ключ {$name} не принят. Проверьте его в AI-настройках.",
+            404 => 'Модель или API-адрес не найдены. Проверьте AI-настройки.',
+            429 => "{$name} ограничил частоту запросов. Подождите минуту и спросите снова.",
             default => 'Модель не ответила. Попробуйте ещё раз через минуту.',
         };
+    }
+
+    /**
+     * @return array{provider: string, key: string, model: string, base_url: string}
+     */
+    private function settings(): array
+    {
+        $aiKey = config('services.ai.key');
+        $legacyKey = config('services.openrouter.key');
+
+        if ((! is_string($aiKey) || $aiKey === '') && is_string($legacyKey) && $legacyKey !== '') {
+            return [
+                'provider' => 'openrouter',
+                'key' => $legacyKey,
+                'model' => (string) config('services.openrouter.model'),
+                'base_url' => rtrim((string) config('services.openrouter.base_url'), '/'),
+            ];
+        }
+
+        return [
+            'provider' => (string) config('services.ai.provider', 'openrouter'),
+            'key' => is_string($aiKey) ? $aiKey : '',
+            'model' => (string) config('services.ai.model'),
+            'base_url' => rtrim((string) config('services.ai.base_url'), '/'),
+        ];
     }
 
     /**

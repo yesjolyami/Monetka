@@ -32,10 +32,11 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string $theme
  * @property string|null $fns_inn
  * @property string|null $fns_password
+ * @property bool $is_admin
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'current_workspace_id', 'theme'])]
+#[Fillable(['name', 'email', 'password', 'current_workspace_id', 'theme', 'is_admin'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token', 'fns_password'])]
 class User extends Authenticatable implements PasskeyUser
 {
@@ -62,6 +63,7 @@ class User extends Authenticatable implements PasskeyUser
             'two_factor_confirmed_at' => 'datetime',
             'theme' => Appearance::class,
             'fns_password' => 'encrypted',
+            'is_admin' => 'boolean',
         ];
     }
 

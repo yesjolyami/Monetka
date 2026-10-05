@@ -64,9 +64,10 @@ type ChatMessage = {
     draft?: Draft;
 };
 
-const { snapshot, model, configured } = defineProps<{
+const { snapshot, model, provider, configured } = defineProps<{
     snapshot: Snapshot;
     model: string;
+    provider: string;
     configured: boolean;
 }>();
 
@@ -185,7 +186,9 @@ async function ask(text?: string): Promise<void> {
 
         if (!response.ok) {
             const fromErrors = data.errors?.message?.[0];
-            throw new Error(fromErrors ?? data.message ?? 'Модель не ответила.');
+            throw new Error(
+                fromErrors ?? data.message ?? 'Модель не ответила.',
+            );
         }
 
         messages.value.push({
@@ -240,7 +243,7 @@ function discardDraft(index: number): void {
                 <span
                     class="bg-secondary text-secondary-foreground shrink-0 rounded-full px-2.5 py-1 font-mono text-[11px]"
                 >
-                    {{ model }}
+                    {{ provider }} · {{ model }}
                 </span>
             </header>
 
@@ -348,7 +351,7 @@ function discardDraft(index: number): void {
                     {{
                         configured
                             ? 'Модель видит снимок справа. В журнал попадает только кнопка «Записать».'
-                            : 'Нет ключа OpenRouter. Журнал и чек работают, чат выключен.'
+                            : 'Нет ключа AI-провайдера. Журнал и чек работают, чат выключен.'
                     }}
                 </p>
                 <div class="flex flex-wrap gap-2">
@@ -372,10 +375,7 @@ function discardDraft(index: number): void {
                         placeholder="Куда ушли деньги? / кофе 350 с карты"
                         class="border-input bg-background ring-offset-background placeholder:text-muted-foreground h-10 flex-1 rounded-md border px-3 text-sm"
                     />
-                    <Button
-                        type="submit"
-                        :disabled="!configured || sending"
-                    >
+                    <Button type="submit" :disabled="!configured || sending">
                         <Spinner v-if="sending" />
                         Спросить
                     </Button>
@@ -480,8 +480,7 @@ function discardDraft(index: number): void {
                     <p v-if="snapshot.goals.length === 0">нет</p>
                     <ul v-else class="space-y-1">
                         <li v-for="goal in snapshot.goals" :key="goal.name">
-                            {{ goal.name }}:
-                            {{ formatAmount(goal.progress) }} /
+                            {{ goal.name }}: {{ formatAmount(goal.progress) }} /
                             {{ formatAmount(goal.target) }}
                         </li>
                     </ul>

@@ -112,6 +112,42 @@ it('asks the model with the snapshot and does not write the journal', function (
     expect(Transaction::query()->where('type', 'expense')->count())->toBe(0);
 });
 
+it('routes assistant requests through the selected compatible aggregator', function () {
+    config([
+        'services.ai.provider' => 'proxyapi',
+        'services.ai.key' => 'proxy-key',
+        'services.ai.base_url' => 'https://api.proxyapi.ru/v1',
+        'services.ai.model' => 'openai/gpt-5-mini',
+        'services.openrouter.key' => null,
+    ]);
+
+    Http::fake([
+        'https://api.proxyapi.ru/v1/chat/completions' => Http::response([
+            'choices' => [[
+                'message' => [
+                    'content' => json_encode([
+                        'text' => 'Ответ через ProxyAPI.',
+                        'draft' => null,
+                    ], JSON_UNESCAPED_UNICODE),
+                ],
+            ]],
+        ]),
+    ]);
+
+    $user = User::factory()->create();
+    (new CreateWorkspace)->execute($user, 'Семья', 'RUB');
+
+    $this->actingAs($user)
+        ->postJson(route('assistant.store'), ['message' => 'Проверка'])
+        ->assertOk()
+        ->assertJsonPath('text', 'Ответ через ProxyAPI.');
+
+    Http::assertSent(fn ($request) => $request->url() === 'https://api.proxyapi.ru/v1/chat/completions'
+        && $request->hasHeader('Authorization', 'Bearer proxy-key')
+        && $request['model'] === 'openai/gpt-5-mini'
+        && ! isset($request['provider']));
+});
+
 it('returns a draft without creating an expense', function () {
     config([
         'services.openrouter.key' => 'test-key',
